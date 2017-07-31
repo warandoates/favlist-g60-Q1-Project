@@ -28,7 +28,12 @@ router.route('/:id')
     res.send('this will update a specific favlist');
   })
   .delete((req, res) => {
-    res.send('this will delete a specific favlist');
+    knex('favlists')
+      .where('id', req.params.id)
+      .first()
+      .del()
+      .then(() => res.json('List has been Deleted!'))
+      .catch(err => console.log('this is an error', err)) 
   });
 
 router.route('/:id/entries')
