@@ -4,8 +4,8 @@ exports.up = function(knex, Promise) {
   table.increments('id').primary();
   table.integer('favlistId').references('id').inTable('favlists')
     .notNullable().onDelete('cascade');
-  table.string('name').notNullable().defaultTo('');
-  table.string('description').notNullable().defaultTo('');
+  table.integer('sourceId').notNullable().defaultTo(0);
+  table.integer('votes').notNullable().defaultTo(0);
   table.timestamps(true, true);
   });
 };

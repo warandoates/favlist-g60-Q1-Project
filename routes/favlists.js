@@ -33,7 +33,8 @@ router.route('/:id')
       .first()
       .update({
         name: req.body.name,
-        description: req.body.description
+        description: req.body.description,
+        updated_at: new Date().toString()
       }, '*')
       .then(result => {
         res.json(result)
@@ -49,6 +50,9 @@ router.route('/:id')
       .catch(err => console.log('this is an error', err));
   });
 
+
+// GET AND POST ROUTES FOR ENTRIES
+
 router.route('/:id/entries')
   .get((req, res) => {
     knex('entries')
@@ -60,8 +64,7 @@ router.route('/:id/entries')
     knex('entries')
       .insert({
         favlistId: req.params.id,
-        name: req.body.name,
-        description: req.body.description
+        sourceId: req.body.sourceId,
       }, '*')
       .then(result => res.json(result[0]))
       .catch(err => res.status(400).send(err));

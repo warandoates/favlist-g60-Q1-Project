@@ -15,8 +15,7 @@ router.route('/:id')
       .where('id', req.params.id)
       .first()
       .update({
-        name: req.body.name,
-        description: req.body.description,
+        sourceId: req.body.sourceId,
         updated_at: new Date().toString()
       }, '*')
       .then(result => {
@@ -33,30 +32,50 @@ router.route('/:id')
       .catch(err => console.log('this is an error', err));
   });
 
-// router.route('/')
-//   .get((req, res) => {
-//     knex('entries')
-//     .orderBy('name')
-//     .then(favLists => res.json(favLists))
-//     .catch(err => res.sendStatus(404));
-//   })
+// GET AND POST ROUTES FOR COMMENTS
 
-  router.route('/:id/comments')
-    .get((req, res) => {
-      knex('comments')
-        .where('entryId', req.params.id)
-        .then(comments =>
-          comments ? res.json(comments) : res.status(404).send('nothing here'));
-    })
-    .post((req, res) => {
-      knex('comments')
-        .insert({
-          entryId: req.params.id,
-          comment: req.body.comment,
-          author: req.body.author
-        }, '*')
-        .then(result => res.json(result[0]))
-        .catch(err => res.status(400).send(err));
-    });
+router.route('/:id/comments')
+  .get((req, res) => {
+    knex('comments')
+      .where('entryId', req.params.id)
+      .then(comments =>
+        comments ? res.json(comments) : res.status(404).send('nothing here'));
+  })
+  .post((req, res) => {
+    knex('comments')
+      .insert({
+        entryId: req.params.id,
+        comment: req.body.comment,
+        author: req.body.author
+      }, '*')
+      .then(result => res.json(result[0]))
+      .catch(err => res.status(400).send(err));
+  });
+
+router.route('/:id/votes')
+  .post((req, res) => {
+    if (req.body.type !== 'up' && req.body.type !== 'down') {
+      res.send('Incorrect Type Specified')
+    }
+    let currentVote;
+    knex('entries')
+      .where('id', req.params.id)
+      .first()
+      .then(entry => {
+        currentVote = entry.votes;
+        req.body.type === 'up' ? currentVote += 1 : currentVote -= 1;
+      })
+      .then(() => {
+        knex('entries')
+          .where('id', req.params.id)
+          .first()
+          .update({
+            votes: currentVote
+          }, '*')
+          .then(result => {
+            res.json(result)
+          })
+      })
+  })
 
 module.exports = router;
