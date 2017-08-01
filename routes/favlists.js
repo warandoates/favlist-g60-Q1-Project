@@ -1,31 +1,73 @@
 const express = require('express');
 const router = express.Router();
+const knex = require('../knex');
 
 router.route('/')
   .get((req, res) => {
-    res.send('this will retrieve all favlists!');
+    knex('favlists')
+      .orderBy('name')
+      .then(favLists => res.json(favLists))
+      .catch(err => res.sendStatus(404));
   })
   .post((req, res) => {
-    res.send('this will create a favlist!!!');
+    knex('favlists')
+      .insert({
+        name: req.body.name,
+        description: req.body.description
+       }, '*')
+      .then(result => res.json(result[0]))
+      .catch(err => res.sendStatus(400));
   });
 
 router.route('/:id')
   .get((req, res) => {
-    res.send('this will retrieve a specific favlist');
+    knex('favlists')
+      .where('id', req.params.id)
+      .first()
+      .then(favlist =>
+        favlist ? res.json(favlist) : res.status(404).send('Not Found'));
   })
   .post((req, res) => {
-    res.send('this will update a specific favlist');
+    knex('favlists')
+      .where('id', req.params.id)
+      .first()
+      .update({
+        name: req.body.name,
+        description: req.body.description,
+        updated_at: new Date().toString()
+      }, '*')
+      .then(result => {
+        res.json(result)
+      })
+      .catch(err => console.log('this is an error', err));
   })
   .delete((req, res) => {
-    res.send('this will delete a specific favlist');
+    knex('favlists')
+      .where('id', req.params.id)
+      .first()
+      .del()
+      .then(() => res.json('List has been Deleted!'))
+      .catch(err => console.log('this is an error', err));
   });
+
+
+// GET AND POST ROUTES FOR ENTRIES
 
 router.route('/:id/entries')
   .get((req, res) => {
-    res.send('this will retrieve all entries to a specific list');
+    knex('entries')
+      .where('favlistId', req.params.id)
+      .then(entries =>
+        entries ? res.json(entries) : res.status(404).send('nothing here'));
   })
   .post((req, res) => {
-    res.send('this will create an entry to a specific list');
+    knex('entries')
+      .insert({
+        favlistId: req.params.id,
+        sourceId: req.body.sourceId,
+      }, '*')
+      .then(result => res.json(result[0]))
+      .catch(err => res.status(400).send(err));
   });
 
 module.exports = router;

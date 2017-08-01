@@ -1,12 +1,5 @@
-
-const knex = require('knex')({
-  client: 'sqlite3',
-  connection: {
-    filename: "./mydb.sqlite"
-  },
-  migrations: {
-      tableName: 'knex_migrations'
-    }
-});
+const env = process.env.NODE_ENV || 'development';
+const knexconfig = require('./knexfile')[env];
+const knex = require('knex')(knexconfig);
 
 module.exports = knex;
