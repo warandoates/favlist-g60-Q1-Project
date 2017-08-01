@@ -7,6 +7,7 @@ exports.seed = function(knex, Promise) {
                 knex('favlists').insert({
                     id: 1,
                     name: 'Horror Movies List',
+                    description: 'The scariest Movies of All Time',
                     created_at: Date.now(),
                     updated_at: Date.now()
                 }),

@@ -3,6 +3,7 @@ exports.up = function(knex, Promise) {
   return knex.schema.createTable('favlists', (table) => {
     table.increments('id').primary();
     table.string('name').notNullable().defaultTo('');
+    table.string('description').notNullable().defaultTo('');
     table.timestamps(true, true);
   });
 };

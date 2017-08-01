@@ -11,7 +11,10 @@ router.route('/')
   })
   .post((req, res) => {
     knex('favlists')
-      .insert({ name: req.body.name }, '*')
+      .insert({
+        name: req.body.name,
+        description: req.body.description
+       }, '*')
       .then(result => res.json(result[0]))
       .catch(err => res.sendStatus(400));
   });
@@ -25,7 +28,17 @@ router.route('/:id')
         favlist ? res.json(favlist) : res.status(404).send('Not Found'));
   })
   .post((req, res) => {
-    res.send('this will update a specific favlist');
+    knex('favlists')
+      .where('id', req.params.id)
+      .first()
+      .update({
+        name: req.body.name,
+        description: req.body.description
+      }, '*')
+      .then(result => {
+        res.json(result)
+      })
+      .catch(err => console.log('this is an error', err));
   })
   .delete((req, res) => {
     knex('favlists')
@@ -33,15 +46,25 @@ router.route('/:id')
       .first()
       .del()
       .then(() => res.json('List has been Deleted!'))
-      .catch(err => console.log('this is an error', err)) 
+      .catch(err => console.log('this is an error', err));
   });
 
 router.route('/:id/entries')
   .get((req, res) => {
-    res.send('this will retrieve all entries to a specific list');
+    knex('entries')
+      .where('favlistId', req.params.id)
+      .then(entries =>
+        entries ? res.json(entries) : res.status(404).send('nothing here'));
   })
   .post((req, res) => {
-    res.send('this will create an entry to a specific list');
+    knex('entries')
+      .insert({
+        favlistId: req.params.id,
+        name: req.body.name,
+        description: req.body.description
+      }, '*')
+      .then(result => res.json(result[0]))
+      .catch(err => res.status(400).send(err));
   });
 
 module.exports = router;
