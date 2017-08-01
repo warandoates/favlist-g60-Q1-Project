@@ -16,7 +16,8 @@ router.route('/:id')
       .first()
       .update({
         name: req.body.name,
-        description: req.body.description
+        description: req.body.description,
+        updated_at: new Date().toString()
       }, '*')
       .then(result => {
         res.json(result)
@@ -42,10 +43,20 @@ router.route('/:id')
 
   router.route('/:id/comments')
     .get((req, res) => {
-      res.send('this will retrieve a comment to a specifc entry');
+      knex('comments')
+        .where('entryId', req.params.id)
+        .then(comments =>
+          comments ? res.json(comments) : res.status(404).send('nothing here'));
     })
     .post((req, res) => {
-      res.send('this create a comment to a specifc entry');
+      knex('comments')
+        .insert({
+          entryId: req.params.id,
+          comment: req.body.comment,
+          author: req.body.author
+        }, '*')
+        .then(result => res.json(result[0]))
+        .catch(err => res.status(400).send(err));
     });
 
 module.exports = router;
