@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
+const { numValidation } = require('./validations');
 
 router.route('/:id')
-  .get((req, res) => {
+  .get(numValidation, (req, res) => {
     knex('comments')
       .where('id', req.params.id)
       .first()
       .then(comment =>
         comment ? res.json(comment) : res.status(404).send('Not Found'));
   })
-  .post((req, res) => {
+  .post(numValidation, (req, res) => {
     knex('comments')
       .where('id', req.params.id)
       .first()
@@ -24,7 +25,7 @@ router.route('/:id')
       })
       .catch(err => console.log('this is an error', err));
   })
-  .delete((req, res) => {
+  .delete(numValidation, (req, res) => {
     knex('comments')
       .where('id', req.params.id)
       .first()
@@ -32,13 +33,5 @@ router.route('/:id')
       .then(() => res.json('Comment has been Deleted!'))
       .catch(err => console.log('this is an error', err));
   });
-
-  router.route('/')
-    .get((req, res) => {
-      knex('comments')
-      .orderBy('name')
-      .then(favLists => res.json(favLists))
-      .catch(err => res.sendStatus(404));
-    })
 
 module.exports = router;

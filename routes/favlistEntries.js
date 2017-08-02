@@ -1,16 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
+const { numValidation, authValidation } = require('./validations');
 
 router.route('/:id')
-  .get((req, res) => {
+  .get(numValidation, (req, res) => {
     knex('entries')
       .where('id', req.params.id)
       .first()
       .then(entry =>
         entry ? res.json(entry) : res.status(404).send('Not Found'));
   })
-  .post((req, res) => {
+  .post(numValidation, authValidation, (req, res) => {
     knex('entries')
       .where('id', req.params.id)
       .first()
@@ -23,7 +24,7 @@ router.route('/:id')
       })
       .catch(err => console.log('this is an error', err));
   })
-  .delete((req, res) => {
+  .delete(numValidation, authValidation, (req, res) => {
     knex('entries')
       .where('id', req.params.id)
       .first()
@@ -32,16 +33,17 @@ router.route('/:id')
       .catch(err => console.log('this is an error', err));
   });
 
+
 // GET AND POST ROUTES FOR COMMENTS
 
 router.route('/:id/comments')
-  .get((req, res) => {
+  .get(numValidation, (req, res) => {
     knex('comments')
       .where('entryId', req.params.id)
       .then(comments =>
         comments ? res.json(comments) : res.status(404).send('nothing here'));
   })
-  .post((req, res) => {
+  .post(numValidation, (req, res) => {
     knex('comments')
       .insert({
         entryId: req.params.id,
@@ -53,7 +55,7 @@ router.route('/:id/comments')
   });
 
 router.route('/:id/votes')
-  .post((req, res) => {
+  .post(numValidation, (req, res) => {
     if (req.body.type !== 'up' && req.body.type !== 'down') {
       res.send('Incorrect Type Specified')
     }
