@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
+const validation = require('./validations');
 
 router.route('/')
   .get((req, res) => {
@@ -20,14 +21,14 @@ router.route('/')
   });
 
 router.route('/:id')
-  .get((req, res) => {
+  .get(validation, (req, res) => {
     knex('favlists')
       .where('id', req.params.id)
       .first()
       .then(favlist =>
         favlist ? res.json(favlist) : res.status(404).send('Not Found'));
   })
-  .post((req, res) => {
+  .post(validation, (req, res) => {
     knex('favlists')
       .where('id', req.params.id)
       .first()
@@ -41,7 +42,7 @@ router.route('/:id')
       })
       .catch(err => console.log('this is an error', err));
   })
-  .delete((req, res) => {
+  .delete(validation, (req, res) => {
     knex('favlists')
       .where('id', req.params.id)
       .first()
@@ -54,13 +55,13 @@ router.route('/:id')
 // GET AND POST ROUTES FOR ENTRIES
 
 router.route('/:id/entries')
-  .get((req, res) => {
+  .get(validation, (req, res) => {
     knex('entries')
       .where('favlistId', req.params.id)
       .then(entries =>
         entries ? res.json(entries) : res.status(404).send('nothing here'));
   })
-  .post((req, res) => {
+  .post(validation, (req, res) => {
     knex('entries')
       .insert({
         favlistId: req.params.id,
